@@ -1,0 +1,5 @@
+.data 15
+.var registerx = 0xa;
+.var registery = 0b1100;
+add $registerx, 4, $registery;
+lw $registerx, 255($registery)
