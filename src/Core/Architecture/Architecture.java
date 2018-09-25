@@ -135,14 +135,6 @@ public class Architecture implements Serializable{
         return ret;
     }
     
-    public int getProcesorBits() {
-        return procesorBits;
-    }
-
-    public void setProcesorBits(int procesorBits) {
-        this.procesorBits = procesorBits;
-    }
-    
     public int getProgramInitialRegister() {
         return programInitialRegister;
     }
@@ -278,10 +270,6 @@ public class Architecture implements Serializable{
             sb.append('\n');
             sb.append("Memories");
         }
-        if(this.procesorBits!=comparison.procesorBits){
-            sb.append('\n');
-            sb.append(createMessage("Processor's bits", this.procesorBits, comparison.procesorBits));
-        }
         if(this.programInitialRegister!=comparison.programInitialRegister){
             sb.append('\n');
             sb.append(createMessage("Program initial register", this.programInitialRegister, comparison.programInitialRegister));
@@ -317,7 +305,6 @@ public class Architecture implements Serializable{
         this.dataInitialRegister=serialized.dataInitialRegister;
         this.endianism=serialized.endianism;
         this.memory=serialized.memory.clone();
-        this.procesorBits=serialized.procesorBits;
         this.programInitialRegister=serialized.programInitialRegister;
         this.wordSize=serialized.wordSize;
         if(modifyNames){

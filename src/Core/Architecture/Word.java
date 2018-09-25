@@ -29,6 +29,7 @@ import java.util.Arrays;
 public class Word implements Serializable{
     public int size;
     public boolean[] bits;
+    public boolean isReversed=false;
     public static enum Operations{AND,OR,NOT,XOR};
     
     /**
@@ -40,29 +41,60 @@ public class Word implements Serializable{
         this.bits=new boolean[size];
     }
     
+    public void trimToSize(){
+        int trim=0;
+        boolean wasReversed=this.isReversed==true;
+        if (!this.isReversed){
+            this.flip();
+        }
+        for(int i=0; i<this.size; i++){
+            if(!this.bits[i]){
+                trim++;
+            }
+            else{
+                break;
+            }
+        }
+        if(trim>0){
+            if(trim==this.size){
+                this.size=1;
+                this.bits=new boolean[]{false};
+                return;
+            }
+            int newSize=this.size-trim;
+            boolean[] newBits=new boolean[newSize];
+            for(int i=0; i<newSize; i++){
+                newBits[i]=this.bits[i+trim];
+            }
+            this.size=newSize;
+            this.bits=newBits;
+        }
+        
+        if(wasReversed){
+            this.flip();
+        }
+    }
+    public final void flip(){
+        boolean[] newBits=new boolean[this.size];
+        for(int i=0; i<this.size; i++){
+            newBits[i]=this.bits[this.size-i-1];
+        }
+        this.isReversed=!this.isReversed;
+        this.bits=newBits;
+    }
     public Word(int size,boolean reverse, boolean... values){
         this.size=size;
         this.bits=new boolean[size];
-        if(reverse){
-        int counter=0;
-        try{
-            for(int i=values.length-1; i>=0; i--){
-                this.bits[counter]=values[i];
-                counter++;
-            }
-        }catch(IndexOutOfBoundsException e){
-            System.out.println("Size excedeed in memory");
-        }
-        }
-        else{
-            for(int i=0; i<values.length; i++){
-                try{
+        for(int i=0; i<values.length; i++){
+            try{
                 this.bits[i]=values[i];
-                }
-                catch(IndexOutOfBoundsException e){
-                    break;
-                }
             }
+            catch(IndexOutOfBoundsException e){
+                break;
+            }
+        }
+        if(reverse){
+            this.flip();
         }
     }
     
@@ -76,7 +108,7 @@ public class Word implements Serializable{
             counter++;
         }
         }catch(IndexOutOfBoundsException e){
-            System.out.println("Size excedeed in memory");
+            throw(e);
         }
     }
     
@@ -186,7 +218,7 @@ public class Word implements Serializable{
         return toParse.contains("true")||toParse.equals("1");
     }
     
-    public void trimToSize(){
+    /*public void trimToSize(){
         int toRest=0;
         for(int i=this.bits.length-1; i>=0; i--){
             if(!this.bits[i]){
@@ -198,5 +230,5 @@ public class Word implements Serializable{
             }
         }
         this.size=this.size-toRest;
-    }
+    }*/
 }

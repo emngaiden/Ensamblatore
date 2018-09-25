@@ -20,7 +20,6 @@ package Core.Assembler.Instruction;
 import Core.Assembler.Format.Format;
 import Core.Architecture.SectorComparator;
 import Core.Architecture.Word;
-import Core.Assembler.AddressingMode;
 import Core.Assembler.Format.Tristate;
 import Exceptions.ReferenceNotFoundException;
 import java.io.Serializable;
@@ -59,6 +58,12 @@ public class InstructionFormat implements Serializable{
        this.sections = new ArrayList<>();
        this.format=new Format(wordSize);
     }
+
+    InstructionFormat(InstructionFormat format) {
+        this.format=new Format(format.format);
+        this.sections=new ArrayList<>(format.sections);
+        this.wordSize=format.wordSize;
+    }
    
     public boolean addSector(int start, int finish, String name, Word value){
         for(InstructionSector sector: sections){
@@ -66,7 +71,7 @@ public class InstructionFormat implements Serializable{
                 return false;
             }
         }
-        this.sections.add(new InstructionSector(start,finish,name,AddressingMode.ABSOLUTO));
+        this.sections.add(new InstructionSector(start,finish,name));
         this.sections.sort(new SectorComparator());
         return true;
     }

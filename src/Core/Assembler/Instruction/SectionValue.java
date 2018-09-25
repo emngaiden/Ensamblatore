@@ -45,8 +45,6 @@ public class SectionValue implements Serializable{
         String[] data=parse.split(",");
         String name=data[0];
         Word value=Word.parseWord(data[1]);
-        System.out.println(name);
-        System.out.println(value);
         return new SectionValue(name, value);
     }
 }

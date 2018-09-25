@@ -17,6 +17,7 @@
  */
 package Core.Assembler.Format;
 
+import Core.Assembler.Instruction.InstructionFormat;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -49,14 +50,14 @@ public class Format implements Serializable{
             System.out.println("Size excedeed in format");
         }
     }
-
-    public Format() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
     public Format(Format format){
         this.data=format.data.clone();
         this.size=format.size;
+    }
+
+    public Format(InstructionFormat format) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     @Override

@@ -56,6 +56,8 @@ public class Line implements Serializable{
     static public final int ID_DIRECTIVE=1;
     static public final int ID_INSTRUCTION=2;
     static public final int ID_VARIABLEUSAGE=3;
+    static public final int ID_REGISTE=4;
+    static public final int ID_MEMORY=5;
     
     @Override
     public String toString(){
@@ -69,7 +71,14 @@ public class Line implements Serializable{
     public Line() {
         this.id=Line.ID_LINE;
     }
-
+    
+    public Line(Line line){
+        this.identifier=line.identifier;
+        this.id=Line.ID_LINE;
+        this.sintax=new Sintax(line.sintax);
+        this.superSintax=line.superSintax;
+    }
+    
     public Line(String identifier, Sintax sintax) {
         this(identifier);
         this.id=Line.ID_LINE;
@@ -220,26 +229,40 @@ public class Line implements Serializable{
         return null;
     }
     
-    public static void init(Assembler ass){
+    public static void initDefaultLinesOnly(){
         ArrayList<Line> ret=new ArrayList<>();
         ret.add(new Line("VALUE","(<HEX|BINARY|INTEGER|OCTAL>)"));
         ret.add(new Line("IDENTIFIER","[a-z|A-Z]+"));
         ret.add(new Line("HEX","0x(-?[0-9|a-f|A-F]+)"));
         ret.add(new Line("BINARY","0b([01]+)"));
-        ret.add(new Line("INTEGER","-?[0-9]+"));
+        ret.add(new Line("INTEGER","(-?[0-9]+)"));
         ret.add(new Line("OCTAL","0o(-?[0-7]+)"));
         ret.add(new Line("TAG", "<IDENTIFIER>:"));
         ret.add(new Line("REGISTER","&<REGISTERNAME><INTEGER|OCTAL|HEX|BINARY>"));
+        ret.add(new Line("DEFAULTREGISTER","R<INTEGER|OCTAL|HEX|BINARY>"));
         Line.DEFAULTLINES=ret;
+    }
+    
+    public static void init(Assembler ass){
+        initDefaultLinesOnly();
         if(ass!=null){
             ass.addLines(Line.DEFAULTLINES);
         }
     }
     
-    public static int identifyLine(String toIdentify){
+    public static int identifyLine(String toIdentify,Assembler ass){
         for(int i=1; i<Line.DEFAULTLINES.size(); i++){
-            if(i!=0 && toIdentify.matches(Line.DEFAULTLINES.get(i).getSintax().getRegex())){
-                return i;
+            if(ass!=null){
+                if(Line.DEFAULTLINES.get(i).superSintax==null){
+                    Line.DEFAULTLINES.get(i).superSintax=ass.getSuperSintax(Line.DEFAULTLINES.get(i));
+                }
+                if(i!=0 && (toIdentify.matches(Line.DEFAULTLINES.get(i).superSintax)))
+                    return i;
+            
+            }
+            else{
+                if(i!=0 && (toIdentify.matches(Line.DEFAULTLINES.get(i).sintax.getRegex())))
+                    return i;
             }
         }
         return -1;
@@ -259,6 +282,14 @@ public class Line implements Serializable{
     
     public void setAsVariableUsage(){
         this.id=Line.ID_VARIABLEUSAGE;
+    }
+    
+    public void setAsRegisterUsage(){
+        this.id=Line.ID_REGISTE;
+    }
+    
+    public void setAsMemoryUsage(){
+        this.id=Line.ID_MEMORY;
     }
     
     public static void restoreDefaultValues(){
@@ -281,5 +312,13 @@ public class Line implements Serializable{
     
     public static Object[] getDefaultValues(){
         return Line.DEFAULTVALUES;
+    }
+    
+    public static Sintax[] getDefaultLinesSintax(){
+        Sintax[] ret = new Sintax[Line.DEFAULTLINES.size()];
+        for(int i=0; i<ret.length; i++){
+            ret[i]=Line.DEFAULTLINES.get(i).getSintax();
+        }
+        return ret;
     }
 }

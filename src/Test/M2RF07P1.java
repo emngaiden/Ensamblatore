@@ -8,7 +8,6 @@ package Test;
 import Core.Architecture.Architecture;
 import Core.Architecture.Memory.Memory;
 import Core.Architecture.Word;
-import Core.Assembler.AddressingMode;
 import Core.Assembler.Assembler;
 import Core.Assembler.Instruction.Directive;
 import Core.Assembler.Instruction.Instruction;
@@ -49,30 +48,30 @@ public class M2RF07P1 {
         
         //Crea tipo de instrucciones
         ArrayList<InstructionSector> sectors1=new ArrayList<>();
-        sectors1.add(new InstructionSector(0,5,"OPCODE",AddressingMode.INMEDIATO));
-        sectors1.add(new InstructionSector(6,10,"rs",AddressingMode.INMEDIATO));
-        sectors1.add(new InstructionSector(11,15,"rt",AddressingMode.INMEDIATO));
-        sectors1.add(new InstructionSector(16,20,"rd",AddressingMode.INMEDIATO));
-        sectors1.add(new InstructionSector(21,25,"shamt",AddressingMode.INMEDIATO));
-        sectors1.add(new InstructionSector(26,31,"funct",AddressingMode.INMEDIATO));
+        sectors1.add(new InstructionSector(0,5,"OPCODE"));
+        sectors1.add(new InstructionSector(6,10,"rs"));
+        sectors1.add(new InstructionSector(11,15,"rt"));
+        sectors1.add(new InstructionSector(16,20,"rd"));
+        sectors1.add(new InstructionSector(21,25,"shamt"));
+        sectors1.add(new InstructionSector(26,31,"funct"));
         InstructionFormat format1=new  InstructionFormat(wordSize1, sectors1);
         InstructionType t1=new InstructionType(format1, "R");
         assembler.addInstructionType(t1);
         
         //TIPO I
         ArrayList<InstructionSector> sectors2=new ArrayList<>();
-        sectors2.add(new InstructionSector(0,5,"OPCODE",AddressingMode.INMEDIATO));
-        sectors2.add(new InstructionSector(6,10,"rs",AddressingMode.INMEDIATO));
-        sectors2.add(new InstructionSector(11,15,"rt",AddressingMode.INMEDIATO));
-        sectors2.add(new InstructionSector(16,31,"inmediate",AddressingMode.INMEDIATO));
+        sectors2.add(new InstructionSector(0,5,"OPCODE"));
+        sectors2.add(new InstructionSector(6,10,"rs"));
+        sectors2.add(new InstructionSector(11,15,"rt"));
+        sectors2.add(new InstructionSector(16,31,"inmediate"));
         InstructionFormat format2=new  InstructionFormat(wordSize1, sectors2);
         InstructionType t2=new InstructionType(format2, "I");
         assembler.addInstructionType(t2);
         
         //TIPO J
         ArrayList<InstructionSector> sectors3=new ArrayList<>();
-        sectors3.add(new InstructionSector(0,5,"OPCODE",AddressingMode.INMEDIATO));
-        sectors3.add(new InstructionSector(6,31,"address",AddressingMode.INMEDIATO));
+        sectors3.add(new InstructionSector(0,5,"OPCODE"));
+        sectors3.add(new InstructionSector(6,31,"address"));
         InstructionFormat format3=new  InstructionFormat(wordSize1, sectors3);
         InstructionType t3=new InstructionType(format3, "J");
         assembler.addInstructionType(t3);

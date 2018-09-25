@@ -27,6 +27,7 @@ import Core.Assembler.Instruction.Instruction;
 import Core.Assembler.Instruction.InstructionType;
 import Core.Assembler.Instruction.Line;
 import Core.Assembler.Instruction.Value;
+import Core.Assembler.ListingFile.Variable;
 import Core.CPU;
 import Exceptions.AssemblyException;
 import Exceptions.ParsingException;
@@ -49,6 +50,8 @@ public class Assembler implements Serializable {
     private ArrayList<Line> _lines;
     private ArrayList<Directive> _directives;
     private ArrayList<Line> _varusages;
+    private ArrayList<Line> _registerusage;
+    private ArrayList<Line> _memoryusage;
     private boolean isSorted = false;
     public boolean printSuperSintaxes = false;
     public boolean canHaveEmptySectors = false;
@@ -60,6 +63,8 @@ public class Assembler implements Serializable {
         this._lines = new ArrayList<>();
         this._instructions = new ArrayList<>();
         this._varusages = new ArrayList<>();
+        this._registerusage=new ArrayList<>();
+        this._memoryusage=new ArrayList<>();
         this.instructionTypes = new ArrayList<>();
         this.instructions = new ArrayList<>();
     }
@@ -71,6 +76,8 @@ public class Assembler implements Serializable {
         this.instructions.addAll(_lines);
         this.instructions.addAll(_varusages);
         this.instructions.addAll(_directives);
+        this.instructions.addAll(_registerusage);
+        this.instructions.addAll(_memoryusage);
     }
 
     public Assembler(CPU parent) {
@@ -92,6 +99,14 @@ public class Assembler implements Serializable {
 
     public ArrayList<Line> get_Varusages() {
         return this._varusages;
+    }
+
+    public ArrayList<Line> getRegisterusage() {
+        return _registerusage;
+    }
+
+    public ArrayList<Line> getMemoryusage() {
+        return _memoryusage;
     }
 
     public boolean modifyInstructionSintaxByIdentifier(String identifier, String toReplace) {
@@ -142,7 +157,7 @@ public class Assembler implements Serializable {
             if (found.superSintax == null) {
                 found.superSintax = this.getSuperSintax(found);
             }
-            String superaux = "[" + Line.getLine("TAG") + "]?" + found.superSintax;
+            String superaux =  found.superSintax;
             if (stringToVerifyOriginal.matches(superaux)) {
                 return i;
             }
@@ -299,10 +314,19 @@ public class Assembler implements Serializable {
             return false;
         }
         this.instructions.add(instruction);
-        if (instruction.id == Line.ID_LINE) {
-            this._lines.add(instruction);
-        } else if (instruction.id == Line.ID_VARIABLEUSAGE) {
-            this._varusages.add(instruction);
+        switch(instruction.id){
+            case Line.ID_LINE:
+                this._lines.add(instruction);
+                break;
+            case Line.ID_VARIABLEUSAGE:
+                this._varusages.add(instruction);
+                break;
+            case Line.ID_MEMORY:
+                this._memoryusage.add(instruction);
+                break;
+            case Line.ID_REGISTE:
+                this._registerusage.add(instruction);
+                break;
         }
         this.isSorted = false;
         return true;
@@ -485,6 +509,8 @@ public class Assembler implements Serializable {
         ArrayList<Instruction> instructs = new ArrayList<>();
         ArrayList<String> newLines = new ArrayList<>();
         ArrayList<Line> varusages = getVariableUsages();
+        ArrayList<Line> registerusage= getRegisterusage();
+        ArrayList<Line> memoryusage = getMemoryusage();
         for (int i = 0; i < id.length; i++) {
             Line got = this.instructions.get(id[i]);
             if (got.id == Line.ID_INSTRUCTION) {
@@ -510,7 +536,7 @@ public class Assembler implements Serializable {
                 boolean added = false;
                 boolean isValid = false;
                 String arg = arguments.get(j);
-                int defaultLineIdent = Line.identifyLine(arg);
+                int defaultLineIdent = Line.identifyLine(arg,this);
                 if (defaultLineIdent == -1) {
                     for (Line usage : varusages) {
                         if (this.isStringValidForLine(usage, arg)) {
@@ -521,6 +547,25 @@ public class Assembler implements Serializable {
                             break;
                         }
                     }
+                    /*for(Line usage: registerusage){
+                        if (this.isStringValidForLine(usage, arg)) {
+                            arguments.remove(j);
+                            arguments.addAll(j, this.getArguments(arg, usage));
+                            j--;
+                            added = true;
+                            break;
+                        }
+                    }
+                    for(Line usage: memoryusage){
+                        if (this.isStringValidForLine(usage, arg)) {
+                            arguments.remove(j);
+                            arguments.addAll(j, this.getArguments(arg, usage));
+                            j--;
+                            added = true;
+                            break;
+                        }
+                    }
+                    */
                 } else {
                     isValid = true;
                     argumentValues.add(new ArgumentValue(arg, defaultLineIdent));
@@ -532,19 +577,42 @@ public class Assembler implements Serializable {
                 }
             }
             for (ArgumentValue v : argumentValues) {
-                Word value;
+                Variable value=null;
                 if (v.type == 1 || v.type == 6) {
                     value = this.variablesTable.findVariable(v.arg);
-                } else {
-                    Value val = new Value(v.arg, v.type);
-                    value = Word.parseWord(val.toBinary().getRawValue());
+                    Word toInsert=Word.parseWord(Value.getIntegerValueInstance(value.getPositionInMemory()).toBinary().getRawValue());
+                    toInsert.trimToSize();
+                    builder.insertValue(toInsert);
+                }else if(v.type==7){
+                    ArrayList<String> args=this.getArguments(v.arg, Line.getLine("REGISTER"));
+                    Memory aux=this.parent.getArchitecture().getMemoryFromIdentifier(args.get(0));
+                    if(aux==null)
+                        throw new ReferenceNotFoundException(args.get(0), v.arg);
+                    Word toInsert=aux.getWord(Integer.parseInt(args.get(1)));
+                    toInsert.trimToSize();
+                    builder.insertValue(toInsert);
+                }else if(v.type==8){
+                    ArrayList<String> args=this.getArguments(v.arg, Line.getLine("DEFAULTREGISTER"));
+                    Word toInsert=this.parent.getArchitecture().getMemoryFromIdentifier(Architecture.DATAMEMORYNAME).getWord(Integer.parseInt(args.get(0)));
+                    toInsert.trimToSize();
+                    builder.insertValue(toInsert);
+                } 
+                else {
+                    Value val = new Value(v.arg, v.type, false);
+                    Word toInsert = Word.parseWord(val.toBinary().getRawValue());
+                    toInsert.trimToSize();
+                    builder.insertValue(toInsert);
                 }
-                value.trimToSize();
-                builder.insertValue(value);
+                //Causes "Zero means Error" error
+                //value.trimToSize();
+                //builder.insertValue(value);
             }
             ret[i] = builder.createWord(this.canHaveEmptySectors);
             if (this.parent.getArchitecture().getMemoriesCount() > 1) {
                 Memory data = this.getParent().getArchitecture().getMemoryFromIdentifier(Architecture.PROGRAMMEMORYNAME);
+                if(this.memoriesWritePointers==null){
+                    this.memoriesWritePointers=this.parent.getArchitecture().initMemoryCounters();
+                }
                 int writePointer = this.memoriesWritePointers[data.id];
                 int idid = data.setWord(writePointer, ret[i]);
                 this.memoriesWritePointers[data.id] += idid;
@@ -637,5 +705,15 @@ public class Assembler implements Serializable {
     public void set_Varusages(ArrayList<Line> _varusages) {
         this._varusages = _varusages;
     }
+
+    public void setRegisterusage(ArrayList<Line> _registerusage) {
+        this._registerusage = _registerusage;
+    }
+
+    public void setMemoryusage(ArrayList<Line> _memoryusage) {
+        this._memoryusage = _memoryusage;
+    }
+    
+    
 
 }

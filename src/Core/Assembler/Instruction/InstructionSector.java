@@ -18,7 +18,6 @@
 package Core.Assembler.Instruction;
 
 import Core.Architecture.Sector;
-import Core.Assembler.AddressingMode;
 import java.io.Serializable;
 
 /**
@@ -27,15 +26,9 @@ import java.io.Serializable;
  */
 public class InstructionSector extends Sector implements Serializable{
     
-    public AddressingMode mode;
     
-    public InstructionSector(int start, int finish, String name, AddressingMode mode) {
+    public InstructionSector(int start, int finish, String name) {
         super(start, finish, name);
-        this.mode=mode;
-    }
-    
-    public InstructionSector(int start, int finish, String name){
-        super(start,finish,name);
     }
     
     @Override
@@ -43,8 +36,6 @@ public class InstructionSector extends Sector implements Serializable{
         StringBuilder sb=new StringBuilder();
         sb.append("start: ").append(start).append(", ");
         sb.append("finish: ").append(finish).append(", ");
-        if(this.mode!=null)
-            sb.append("addressing: ").append(mode).append(", ");
         sb.append("name: ").append(name);
         return sb.toString();
     }

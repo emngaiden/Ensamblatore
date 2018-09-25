@@ -5,7 +5,6 @@
  */
 package Test;
 
-import Core.Assembler.AddressingMode;
 import Core.Assembler.Assembler;
 import Core.Assembler.Format.Sintax;
 import Core.Assembler.Instruction.Instruction;
@@ -27,8 +26,8 @@ public class M2RF05P1 {
         int wordSize=18;
         ArrayList<InstructionSector> sectors6=new ArrayList<>();
         sectors6.add(new InstructionSector(0,5,"f"));
-        sectors6.add(new InstructionSector(6,11,"sX",AddressingMode.INMEDIATO));
-        sectors6.add(new InstructionSector(12,17,"sY",AddressingMode.INMEDIATO));
+        sectors6.add(new InstructionSector(6,11,"sX"));
+        sectors6.add(new InstructionSector(12,17,"sY"));
         InstructionFormat format6=new  InstructionFormat(wordSize, sectors6);
         InstructionType t6=new InstructionType(format6, "TIPO 6");
         Instruction add=new Instruction(t6);
@@ -37,8 +36,8 @@ public class M2RF05P1 {
         
          ArrayList<InstructionSector> sectors7=new ArrayList<>();
         sectors7.add(new InstructionSector(0,5,"f"));
-        sectors7.add(new InstructionSector(6,11,"sX",AddressingMode.INMEDIATO));
-        sectors7.add(new InstructionSector(12,17,"sY",AddressingMode.REGISTROINDIRECTO));
+        sectors7.add(new InstructionSector(6,11,"sX"));
+        sectors7.add(new InstructionSector(12,17,"sY"));
         InstructionFormat format7=new  InstructionFormat(wordSize, sectors7);
         InstructionType t7=new InstructionType(format7, "TIPO 7");
         Instruction input=new Instruction(t7);

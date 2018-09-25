@@ -20,7 +20,7 @@ package Exceptions;
 /**
  *
  * @author emnga
- */
+*/
 public class SintaxException extends RuntimeException{
 
     public String line;

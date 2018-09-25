@@ -19,7 +19,6 @@ package Core.Assembler.Instruction;
 
 import Core.Architecture.Sector;
 import Core.Architecture.Word;
-import Core.Assembler.AddressingMode;
 import Core.Assembler.Assembler;
 import Core.Assembler.Format.Format;
 import Core.Assembler.Format.Sintax;
@@ -36,7 +35,6 @@ import java.util.Arrays;
 public final class Instruction extends Line implements Serializable{
 
     private InstructionType type;
-    public AddressingMode addressingMode;
     private Assembler parent;
     public SectionValue[] values;
     public Format format;
@@ -77,8 +75,9 @@ public final class Instruction extends Line implements Serializable{
     }
     
     public Instruction(Instruction instruction){
-        this.addressingMode=instruction.addressingMode;
-        this.dataOrder=instruction.dataOrder.clone();
+        if(this.dataOrder!=null){
+            this.dataOrder=instruction.dataOrder.clone();
+        }
         this.format=new Format(instruction.format);
         this.id=instruction.id;
         this.identifier=instruction.identifier;
@@ -96,8 +95,6 @@ public final class Instruction extends Line implements Serializable{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString()).append(';');
-        if(addressingMode!=null)
-            sb.append("AdressingMode: ").append(this.addressingMode.getIdentifier()).append(';');
         sb.append("Format: ").append(this.format.toString()).append(';');
         sb.append("SectionValue: ").append(Arrays.deepToString(this.values)).append(';');
         sb.append("DataOrder").append(Arrays.deepToString(this.dataOrder));

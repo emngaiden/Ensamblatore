@@ -34,10 +34,10 @@ public class ListingFile implements Serializable{
         this.variables=new ArrayList<>();
     }
     
-    public Word findVariable(String name){
+    public Variable findVariable(String name){
         for(Variable var: this.variables)
             if(var.name.equals(name))
-                return var.getValue();
+                return var;
         throw new ReferenceNotFoundException("Variable Table",name);
     }
     

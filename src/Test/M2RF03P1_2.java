@@ -5,7 +5,6 @@
  */
 package Test;
 
-import Core.Assembler.AddressingMode;
 import Core.Assembler.Assembler;
 import Core.Assembler.Instruction.InstructionFormat;
 import Core.Assembler.Instruction.InstructionSector;

@@ -38,6 +38,12 @@ public class InstructionType implements Serializable{
         this.identifier = identifier;
     }
 
+    public InstructionType(InstructionType type) {
+        this.format=new InstructionFormat(type.format);
+        this.id=type.id;
+        this.identifier=type.identifier;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

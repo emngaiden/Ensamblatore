@@ -131,7 +131,6 @@ public abstract class Directive extends Line implements Serializable {
                 }
                 if (memoriesCount > 1) {
                     Memory data = ass.getParent().getArchitecture().getMemoryFromIdentifier(Architecture.DATAMEMORYNAME);
-
                     int writePointer = this.getAss().memoriesWritePointers[data.id];
                     Word parsed = Word.parseWord(value);
                     int idid = data.setWord(writePointer, parsed);
